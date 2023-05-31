@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 # Add OpenAI import
-
+import openai
 # Set to True to print the full response from OpenAI for each call
 printFullResponse = False
 
@@ -17,7 +17,10 @@ def main():
         azure_oai_model = os.getenv("AZURE_OAI_MODEL")
         
         # Set OpenAI configuration settings
-        
+        openai.api_type = "azure"
+        openai.api_base = azure_oai_endpoint
+        openai.api_version = "2023-03-15-preview"
+        openai.api_key = azure_oai_key
 
         while True:
             print('1: Basic prompt (no prompt engineering)\n' +
@@ -27,13 +30,13 @@ def main():
                   '\'quit\' to exit the program\n')
             command = input('Enter a number:')
             if command == '1':
-                call_openai_model(messages="../prompts/basic.txt", model=azure_oai_model)
+                call_openai_model(messages="c:/Users/balag/azure-openai/Labfiles/03-prompt-engineering/prompts/basic.txt", model=azure_oai_model)
             elif command =='2':
-                call_openai_model(messages="../prompts/email-format.txt", model=azure_oai_model)
+                call_openai_model(messages="c:/Users/balag/azure-openai/Labfiles/03-prompt-engineering/prompts/email-format.txt", model=azure_oai_model)
             elif command =='3':
-                call_openai_model(messages="../prompts/specify-content.txt", model=azure_oai_model)
+                call_openai_model(messages="c:/Users/balag/azure-openai/Labfiles/03-prompt-engineering/prompts/specify-content.txt", model=azure_oai_model)
             elif command =='4':
-                call_openai_model(messages="../prompts/specify-tone.txt", model=azure_oai_model)
+                call_openai_model(messages="c:/Users/balag/azure-openai/Labfiles/03-prompt-engineering/prompts/specify-tone.txt", model=azure_oai_model)
             elif command.lower() == 'quit':
                 print('Exiting program...')
                 break
@@ -55,7 +58,18 @@ def call_openai_model(messages, model):
     print("User message: " + user_message)
 
     # Build the messages array
-    
+    messages =[
+     {"role": "system", "content": system_message},
+     {"role": "user", "content": user_message},
+ ]
+
+ # Call the Azure OpenAI model
+    response = openai.ChatCompletion.create(
+     engine=model,
+     messages=messages,
+     temperature=0.7,
+     max_tokens=800
+ )
 
 
     if printFullResponse:
